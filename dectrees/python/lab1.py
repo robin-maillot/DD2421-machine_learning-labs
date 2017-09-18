@@ -133,7 +133,7 @@ runs = 100
 x = []
 y = []
 means = []
-vars = []
+stds = []
 for f in fractions:
     xf = []
     yf = []
@@ -144,13 +144,15 @@ for f in fractions:
         yf.append(d.check(prunned_t, test)) 
         xf.append(f)
     means.append(np.mean(yf))
-    vars.append(np.var(yf))
+    stds.append(np.std(yf))
     x.append(xf)
     y.append(yf)
 
 means = np.array(means)
 vars = np.array(vars)
-plt.plot(x,y, 'bo',fractions,means,'ro',fractions,means+vars,'ro',fractions,means-vars,'ro')
+plt.plot(x,y, 'g.',fractions,means,'bo',fractions,means+stds,'r^',fractions,means-stds,'rv')
+plt.plot(fractions,means)
+plt.title("effect of validation/training fraction on test error in MONK-3")
 plt.ylabel('test error')
 plt.ylabel('fraction of data used for training')
 
