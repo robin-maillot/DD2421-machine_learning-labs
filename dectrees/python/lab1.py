@@ -3,6 +3,7 @@ import monkdata as m
 import drawtree_qt5 as qt5
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
     
 def get_entropy():
@@ -76,7 +77,7 @@ def pruneTree(tree,val):
             if(x>max2):
                 max2 = x
                 best_i = i
-        print(str(it) + " " + str(max) + " " + str(max2)+" " + str(best_i))
+        #print(str(it) + " " + str(max) + " " + str(max2)+" " + str(best_i))
         if(max2>=max):
             if(best_i==-1):
                 break
@@ -93,18 +94,19 @@ print("Question 1:\n")
 get_entropy()
 
 ## Question 2 ##
-print("Question 2:\n")
+print("Part 3: Entropy\n")
 get_gain(m.monk1,"MONK-1")
 get_gain(m.monk2,"MONK-2")
 get_gain(m.monk3,"MONK-3")
 
 ## Question 3 ##
-print("Question 3:\n")
+print("Part 4: Information Gain\n")
 split_set(m.monk1, m.attributes[4], "MONK-1")
 get_results(m.monk1)
 
 
 ## Question 4 ##
+print("Part 5: Building Decision Trees\n")
 acc = test(m.monk1,m.monk1test)
 print("Accuracy at depth 2: " + str(acc))
 
@@ -113,6 +115,8 @@ print("Accuracy using ID3: " + str(d.check(t, m.monk1test)))
 #qt5.drawTree(t)
 
 ## Question 5 ##
+print("Part 6: Prunning\n")
+
 monk1train, monk1val = partition(m.monk1, 0.6)
 t=d.buildTree(monk1train, m.attributes)
 prunned_t = pruneTree(t,monk1val)
@@ -122,22 +126,31 @@ print("Accuracy after prunning: " + str(d.check(prunned_t, m.monk1test)))
 
 
 ## last question ##
-trainval = m.monk1
-test = m.monk1test
+trainval = m.monk3
+test = m.monk3test
 fractions = [0.3,0.4,0.5,0.6,0.7,0.8]
 runs = 100
 x = []
 y = []
-
+means = []
+vars = []
 for f in fractions:
+    xf = []
+    yf = []
     for run in range(0,runs):
         train, val = partition(trainval,f)
         t=d.buildTree(train, m.attributes)
         prunned_t = pruneTree(t,val)
-        y.append(d.check(prunned_t, test)) 
-        x.append(f)
+        yf.append(d.check(prunned_t, test)) 
+        xf.append(f)
+    means.append(np.mean(yf))
+    vars.append(np.var(yf))
+    x.append(xf)
+    y.append(yf)
 
-plt.plot(x,y, 'ro')
+means = np.array(means)
+vars = np.array(vars)
+plt.plot(x,y, 'bo',fractions,means,'ro',fractions,means+vars,'ro',fractions,means-vars,'ro')
 plt.ylabel('test error')
 plt.ylabel('fraction of data used for training')
 
