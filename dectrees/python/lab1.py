@@ -25,7 +25,7 @@ def get_results(dataset):
     t = d.mostCommon(dataset)
     pCount = len([x for x in dataset if (x.positive==t)])
     print(t)
-    print(float(pCount/len(dataset)))
+    #print(float(pCount/len(dataset)))
     return pCount
     
 def test(dataset):
@@ -38,9 +38,19 @@ def test(dataset):
             
     acc = 0.0
     for v in m.attributes[split_attribute].values:
+        max2 = 0.0
+        split_attribute2 = 0
         subset = d.select(dataset, m.attributes[split_attribute], v)
-        x = get_results(subset)
-        acc += x
+        for i in range(0,len(m.attributes)):
+            if(d.averageGain(dataset,m.attributes[i])>max):
+                max = d.averageGain(subset,m.attributes[i])
+                split_attribute2 = i
+                
+                
+        for v in m.attributes[split_attribute].values:
+            subset2 = d.select(subset, m.attributes[split_attribute2], v)
+            x = get_results(subset2)
+            acc += x
     acc = acc/len(dataset)
     return acc
 
@@ -63,5 +73,5 @@ acc = test(m.monk1)
 print("Accuracy after one step: " + str(acc))
 
 t=d.buildTree(m.monk1, m.attributes,2);
-#print(d.check(t, m.monk1test))
+print(d.check(t, m.monk1test))
 #qt5.drawTree(t)
