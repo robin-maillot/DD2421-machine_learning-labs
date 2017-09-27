@@ -1,6 +1,8 @@
 from cvxopt.solvers import qp
 from cvxopt.base import matrix
-import numpy, pylab, random, math
+import pylab, random, math
+import numpy as np
+import pylab, random, math
 
 # Seed random to get same results each time
 numpy.random.seed(100)
@@ -18,6 +20,21 @@ def plot_data():
     pylab.plot([p[0] for p in classB],[p[1] for p in classB],'ro')
     
     pylab.show()
+
+def linearKernel(x, y):
+	np.transpose(x)
+	return x*y+1
+
+def polyKernel(x, y, p)
+	np.transpose(x)
+	return math.pow((x*y+1),p)
+
+def radialKernel(x, y, sigma)
+	numer = -math.pow(x-y,2)
+	denom = 2*math.pow(sigma,2)
+	return math.exp(numer/denom)
+
+
 
 def create_model(data):
     print(data.shape)
