@@ -15,7 +15,7 @@ def get_entropy():
 def get_gain(dataset,name):
     print("Information Gain for " + name)
     for i in range(0,len(m.attributes)):
-        print("Attribute "+str(i)+" :"+str(d.averageGain(dataset,m.attributes[i])))
+        print("Attribute "+str(i+1)+" :"+str(d.averageGain(dataset,m.attributes[i])))
     print("\n")
     return None
 
@@ -114,20 +114,33 @@ t=d.buildTree(m.monk1, m.attributes,2);
 print("Accuracy using ID3: " + str(d.check(t, m.monk1test)))
 #qt5.drawTree(t)
 
+t_full=d.buildTree(m.monk1, m.attributes);
+print("Accuracy using full tree for monk1test: " + str(d.check(t_full, m.monk1test)))
+print("Accuracy using full tree for monk1: " + str(d.check(t_full, m.monk1)))
+t_full=d.buildTree(m.monk2, m.attributes);
+print("Accuracy using full tree for monk2test: " + str(d.check(t_full, m.monk2test)))
+print("Accuracy using full tree for monk2: " + str(d.check(t_full, m.monk2)))
+t_full=d.buildTree(m.monk3, m.attributes);
+print("Accuracy using full tree for monk3test: " + str(d.check(t_full, m.monk3test)))
+print("Accuracy using full tree for monk3: " + str(d.check(t_full, m.monk3)))
+
+
 ## Question 5 ##
 print("Part 6: Prunning\n")
-
 monk1train, monk1val = partition(m.monk1, 0.6)
 t=d.buildTree(monk1train, m.attributes)
+#qt5.drawTree(t)
 prunned_t = pruneTree(t,monk1val)
+print(t)
+print(prunned_t)
 print("Accuracy before prunning: " + str(d.check(t, m.monk1test)))
 print("Accuracy after prunning: " + str(d.check(prunned_t, m.monk1test)))
 #qt5.drawTree(prunned_t)
 
 
 ## last question ##
-trainval = m.monk3
-test = m.monk3test
+trainval = m.monk1
+test = m.monk1test
 fractions = [0.3,0.4,0.5,0.6,0.7,0.8]
 runs = 100
 x = []
@@ -152,7 +165,7 @@ means = np.array(means)
 vars = np.array(vars)
 plt.plot(x,y, 'g.',fractions,means,'bo',fractions,means+stds,'r^',fractions,means-stds,'rv')
 plt.plot(fractions,means)
-plt.title("effect of validation/training fraction on test error in MONK-3")
+plt.title("effect of validation/training fraction on test error in MONK-1")
 plt.ylabel('test error')
 plt.ylabel('fraction of data used for training')
 
