@@ -5,7 +5,7 @@ import numpy as np
 import pylab, random, math
 
 # Seed random to get same results each time
-np.random.seed(100)
+random.seed(100)
 
 classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
           for i in range(5)] + \
@@ -15,43 +15,81 @@ classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
 classB = [(random.normalvariate(-0.0,0.5),random.normalvariate(-0.5,0.5),-1.0)
           for i in range(10)]
 
-def plot_data():
+def plot_data(f):
+    
+    xrange = np.arange(-4,4,0.05)
+    yrange = np.arange(-4,4,0.05)
+    
+    grid = matrix([[indicator(f,[x,y]) for y in yrange] for x in xrange])
+    
+    pylab.contour(xrange,yrange,grid,(-1.0,0.0,1.0),colors=('red','black','blue'),linewidths=(1,3,1))
     pylab.plot([p[0] for p in classA],[p[1] for p in classA],'bo')
     pylab.plot([p[0] for p in classB],[p[1] for p in classB],'ro')    
     pylab.show()
 
+    
 def linearKernel(x, y):
-	np.transpose(x)
-	return x*y+1
+    np.transpose(x)
+    return np.dot(x,y)+1
 
-def polyKernel(x, y, p):
+def polyKernel(x, y, p=2):
 	np.transpose(x)
-	return math.pow((x*y+1),p)
+	return math.pow((np.dot(x,y)+1),p)
 
-def radialKernel(x, y, sigma):
-	numer = -math.pow(x-y,2)
+def radialKernel(x, y, sigma=1):
+	numer = -np.dot(x-y,x-y)
 	denom = 2*math.pow(sigma,2)
 	return math.exp(numer/denom)
+    
+def filter(alpha,data):
+    ind = np.array([0,0,0,0])
+    for i in range(len(alpha)):
+        if(alpha[i]>0.00001):
+            ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
+    return ind[1:,:]
 
-
+def indicator(ind,new_data):
+    ans = 0
+    for i in range(ind.shape[0]):
+        ans += radialKernel(new_data, ind[i][[0,1]])*ind[i][2]*ind[i][3]
+    return ans
 
 def create_model(data):
-    print(data.shape)
-    #P = np.zeros(1,2)
+    n = data.shape[0]
+    P = np.zeros((n,n))
+    #print(data[0])
+    #print(data[0][[0,1]])
+    for i in range(n):
+        for j in range(n):
+            P[i][j] = data[i][2]*data[j][2]*radialKernel(data[i][[0,1]], data[j][[0,1]])
     #print(P)
 
-def run():
+    q = np.zeros((n,1)) -1
+    #print(q)
+    G = np.identity(n)*(-1)
+    #print(G)
     
+    h = np.zeros((n,1))
+    #print(h)
+    
+    return P,q,G,h
+
+def run():
     # put both classes in one vector
     data = classA + classB
     
     # mix up the vector
     random.shuffle(data)
     data = np.array(data)
-    create_model(data)
+    P,q,G,h = create_model(data)
+    r = qp(matrix(P),matrix(q),matrix(G),matrix(h))
+    alpha = list(r['x'])
+
+    print(alpha)
+    f = filter(alpha, data)
     
-    
-    #plot_data()
-    
+    plot_data(f)
+
+
 if __name__ == "__main__":
     run()
