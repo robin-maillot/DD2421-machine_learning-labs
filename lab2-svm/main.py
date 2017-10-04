@@ -6,6 +6,7 @@ import pylab, random, math
 
 # Seed random to get same results each time
 random.seed(100)
+g, axarr = pylab.subplots(2, 2)
 
 classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
           for i in range(5)] + \
@@ -15,17 +16,16 @@ classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
 classB = [(random.normalvariate(-0.0,0.5),random.normalvariate(-0.5,0.5),-1.0)
           for i in range(10)]
 
-def plot_data(f):
+
+def plot_data(f,m):
     
     xrange = np.arange(-4,4,0.05)
     yrange = np.arange(-4,4,0.05)
     
-    grid = matrix([[indicator(f,[x,y]) for y in yrange] for x in xrange])
-    
-    pylab.contour(xrange,yrange,grid,(-1.0,0.0,1.0),colors=('red','black','blue'),linewidths=(1,3,1))
-    pylab.plot([p[0] for p in classA],[p[1] for p in classA],'bo')
-    pylab.plot([p[0] for p in classB],[p[1] for p in classB],'ro')    
-    pylab.show()
+    grid = matrix([[indicator(f,[x,y],m) for y in yrange] for x in xrange])
+    axarr[m/2,m%2].contour(xrange,yrange,grid,(-1.0,0.0,1.0),colors=('red','black','blue'),linewidths=(1,3,1))
+    axarr[m/2,m%2].plot([p[0] for p in classA],[p[1] for p in classA],'bo')
+    axarr[m/2,m%2].plot([p[0] for p in classB],[p[1] for p in classB],'ro')   
 
     
 def linearKernel(x, y):
@@ -48,21 +48,39 @@ def filter(alpha,data):
             ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
     return ind[1:,:]
 
-def indicator(ind,new_data):
+def indicator(ind,new_data,m):
     ans = 0
     for i in range(ind.shape[0]):
-        ans += radialKernel(new_data, ind[i][[0,1]])*ind[i][2]*ind[i][3]
+        if(m==0):
+            ans += linearKernel(new_data, ind[i][[0,1]])*ind[i][2]*ind[i][3]
+        if(m==1):
+            ans += polyKernel(new_data, ind[i][[0,1]],2)*ind[i][2]*ind[i][3]
+        if(m==2):
+            ans += polyKernel(new_data, ind[i][[0,1]],3)*ind[i][2]*ind[i][3]
+        if(m==3):
+            ans += radialKernel(new_data, ind[i][[0,1]])*ind[i][2]*ind[i][3]
     return ans
 
-def create_model(data):
+def create_model(data,m):
     n = data.shape[0]
     P = np.zeros((n,n))
-    #print(data[0])
-    #print(data[0][[0,1]])
-    for i in range(n):
-        for j in range(n):
-            P[i][j] = data[i][2]*data[j][2]*radialKernel(data[i][[0,1]], data[j][[0,1]])
-    #print(P)
+    
+    if(m==0):
+        for i in range(n):
+            for j in range(n):
+                P[i][j] = data[i][2]*data[j][2]*linearKernel(data[i][[0,1]], data[j][[0,1]])
+    if(m==1):
+        for i in range(n):
+            for j in range(n):
+                P[i][j] = data[i][2]*data[j][2]*polyKernel(data[i][[0,1]], data[j][[0,1]],2)
+    if(m==2):
+        for i in range(n):
+            for j in range(n):
+                P[i][j] = data[i][2]*data[j][2]*polyKernel(data[i][[0,1]], data[j][[0,1]],3)
+    if(m==3):
+        for i in range(n):
+            for j in range(n):
+                P[i][j] = data[i][2]*data[j][2]*radialKernel(data[i][[0,1]], data[j][[0,1]])
 
     q = np.zeros((n,1)) -1
     #print(q)
@@ -81,15 +99,21 @@ def run():
     # mix up the vector
     random.shuffle(data)
     data = np.array(data)
-    P,q,G,h = create_model(data)
-    r = qp(matrix(P),matrix(q),matrix(G),matrix(h))
-    alpha = list(r['x'])
-
-    print(alpha)
-    f = filter(alpha, data)
     
-    plot_data(f)
-
+    for i in range(4):
+        P,q,G,h = create_model(data,i)
+        r = qp(matrix(P),matrix(q),matrix(G),matrix(h))
+        alpha = list(r['x'])
+    
+        #print(alpha)
+        f = filter(alpha, data)
+        
+        plot_data(f,i)
+    axarr[0, 0].set_title('Linear')
+    axarr[0, 1].set_title('2nd order Poly')
+    axarr[1, 0].set_title('3rd order Poly')
+    axarr[1, 1].set_title('Gaussian')
+    pylab.show()
 
 if __name__ == "__main__":
     run()
