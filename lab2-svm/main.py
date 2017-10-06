@@ -7,7 +7,7 @@ import numpy as np
 #import pylab, random, math
 
 # Seed random to get same results each time
-random.seed(100)
+#random.seed(100)
 g, axarr = pylab.subplots(2, 2)
 
 classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
@@ -46,7 +46,7 @@ def radialKernel(x, y, sigma=1):
 def filter(alpha,data):
     ind = np.array([0,0,0,0])
     for i in range(len(alpha)):
-        if(alpha[i]>0.00001):
+        if(alpha[i]>0.00001 and alpha[i] < 1000):
             ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
     return ind[1:,:]
 
@@ -86,10 +86,13 @@ def create_model(data,m):
 
     q = np.zeros((n,1)) -1
     #print(q)
-    G = np.identity(n)*(-1)
-    #print(G)
+    #G = np.zeros(n,1)
+    G = np.zeros((2*n,n))
+    for i in range(n):
+    	G[i, i] = -1
+
     
-    h = np.zeros((n,1))
+    h = np.zeros((2*n,1))
     #print(h)
     
     return P,q,G,h
