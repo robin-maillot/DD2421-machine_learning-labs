@@ -1,8 +1,10 @@
 from cvxopt.solvers import qp
 from cvxopt.base import matrix
+import matplotlib
+matplotlib.use('Agg')
 import pylab, random, math
 import numpy as np
-import pylab, random, math
+#import pylab, random, math
 
 # Seed random to get same results each time
 random.seed(100)
@@ -114,6 +116,7 @@ def run():
     axarr[1, 0].set_title('3rd order Poly')
     axarr[1, 1].set_title('Gaussian')
     pylab.show()
+    pylab.savefig("HyperDerp.png")
 
 if __name__ == "__main__":
     run()
