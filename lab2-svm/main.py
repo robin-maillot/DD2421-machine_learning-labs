@@ -46,9 +46,14 @@ def radialKernel(x, y, sigma=1):
 def filter(alpha,data):
     ind = np.array([0,0,0,0])
     for i in range(len(alpha)):
-        if(alpha[i]>0.00001 and alpha[i] < 1000):
+        if(alpha[i]>0.000000000000000001 and alpha[i] < 500):
             ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
-    return ind[1:,:]
+    try:
+    	return ind[1:,:]
+    except:
+		print("\nERROR: filter kernel has size 0 \n")
+		raise
+
 
 def indicator(ind,new_data,m):
     ans = 0
