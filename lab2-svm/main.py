@@ -8,6 +8,9 @@ import numpy as np
 
 # Seed random to get same results each time
 #random.seed(100)
+
+print "Random Seed = " +np.random.get_state()
+
 g, axarr = pylab.subplots(2, 2)
 
 classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
@@ -15,7 +18,7 @@ classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
           [(random.normalvariate(-1.5,1),random.normalvariate(1.5,1),1.0)
           for i in range(5)]
               
-classB = [(random.normalvariate(-0.0,0.5),random.normalvariate(-0.5,0.5),-1.0)
+classB = [(random.normalvariate(-0.0,0.5),random.normalvariate(-4,4),-1.0)
           for i in range(10)]
 
 
@@ -32,7 +35,7 @@ def plot_data(f,m):
     
 def linearKernel(x, y):
     np.transpose(x)
-    return np.dot(x,y)+1
+    return (np.dot(x,y)+1)
 
 def polyKernel(x, y, p=2):
 	np.transpose(x)
@@ -43,16 +46,22 @@ def radialKernel(x, y, sigma=1):
 	denom = 2*math.pow(sigma,2)
 	return math.exp(numer/denom)
     
-def filter(alpha,data):
+def filter(alpha,data, C):
     ind = np.array([0,0,0,0])
+    # avg = 0
+    # for i in range(len(alpha)):
+    #     if(alpha[i]>000001):
+    #         avg += alpha[i]
+    # avg /= (i+1)
     for i in range(len(alpha)):
-        if(alpha[i]>0.000000000000000001 and alpha[i] < 500):
+        #if(alpha[i]>0.000001 and alpha[i] < 5.0*avg):
+        if(alpha[i]>0.000001 and alpha[i] < C):
             ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
     try:
     	return ind[1:,:]
     except:
-		print("\nERROR: filter kernel has size 0 \n")
-		raise
+		print ("ERROR: C value too low, increasing to %d \n" %(C))
+		return filter(alpha, data, C*10)
 
 
 def indicator(ind,new_data,m):
@@ -116,7 +125,7 @@ def run():
         alpha = list(r['x'])
     
         #print(alpha)
-        f = filter(alpha, data)
+        f = filter(alpha, data, 100)
         
         plot_data(f,i)
     axarr[0, 0].set_title('Linear')
