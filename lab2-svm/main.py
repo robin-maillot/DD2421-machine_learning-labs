@@ -9,8 +9,6 @@ import numpy as np
 # Seed random to get same results each time
 #random.seed(100)
 
-print "Random Seed = " +np.random.get_state()
-
 g, axarr = pylab.subplots(2, 2)
 
 classA = [(random.normalvariate(-1.5,1),random.normalvariate(0.5,1),1.0)
