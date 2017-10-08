@@ -4,7 +4,6 @@ import matplotlib
 matplotlib.use('Agg')
 import pylab, random, math
 import numpy as np
-#import pylab, random, math
 
 # Seed random to get same results each time
 #random.seed(100)
@@ -56,7 +55,7 @@ def filter(alpha,data, C):
         if(alpha[i]>0.000001 and alpha[i] < C):
             ind = np.vstack((ind,[data[i,0],data[i,1],data[i,2],alpha[i]]))
     try:
-    	return ind[1:,:]
+    	return ind[1:,:], C
     except:
 		print ("ERROR: C value too low, increasing to %d \n" %(C))
 		return filter(alpha, data, C*10)
@@ -116,20 +115,23 @@ def run():
     # mix up the vector
     random.shuffle(data)
     data = np.array(data)
-    
+    C = []
+
     for i in range(4):
         P,q,G,h = create_model(data,i)
         r = qp(matrix(P),matrix(q),matrix(G),matrix(h))
         alpha = list(r['x'])
     
         #print(alpha)
-        f = filter(alpha, data, 100)
+        f, tmp = filter(alpha, data, 100)
+        C.append(tmp)
+        print C[i]
         
         plot_data(f,i)
-    axarr[0, 0].set_title('Linear')
-    axarr[0, 1].set_title('2nd order Poly')
-    axarr[1, 0].set_title('3rd order Poly')
-    axarr[1, 1].set_title('Gaussian')
+    axarr[0, 0].set_title('Linear, C=' + str(C[0]))
+    axarr[0, 1].set_title('2nd order Poly, C=' + str(C[1]))
+    axarr[1, 0].set_title('3rd order Poly, C=' + str(C[2]))
+    axarr[1, 1].set_title('Gaussian, C=' + str(C[3]))
     pylab.show()
     pylab.savefig("HyperDerp.png")
 
