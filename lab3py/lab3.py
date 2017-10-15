@@ -58,7 +58,7 @@ def computePrior(labels, W=None):
 #     labels - N vector of class labels
 # out:    mu - C x d matrix of class means (mu[i] - class i mean)
 #      sigma - C x d x d matrix of class covariances (sigma[i] - class i sigma)
-def mlParams(X, labels, W=None):
+def _mlParams(X, labels, W=None):
     assert(X.shape[0]==labels.shape[0])
     Npts,Ndims = np.shape(X)
     classes = np.unique(labels)
@@ -70,8 +70,6 @@ def mlParams(X, labels, W=None):
     mu = np.zeros((Nclasses,Ndims))
     sigma = np.zeros((Nclasses,Ndims,Ndims))
 
-    # TODO: fill in the code to compute mu and sigma!
-    # ==========================
     N = np.zeros((Nclasses,1))
     tmp = np.zeros((Nclasses,Ndims))
 
@@ -79,8 +77,6 @@ def mlParams(X, labels, W=None):
         N[labels[i]] += 1 
         tmp[labels[i]] +=  X[i]
 
-    # for k in range(Nclasses):
-    #     mu[k] = tmp[k]/N[k]
     mu = tmp/N
 
     tmp = np.zeros((Nclasses,Ndims))
@@ -94,12 +90,47 @@ def mlParams(X, labels, W=None):
             for j in range (Ndims):
                 if (i !=j):
                     sigma[k,i,j] = 0
-    # ==========================
-    
-    # print np.shape(mu)
-    # print mu
-    # print np.shape(sigma)
-    # print sigma
+
+    return mu, sigma
+
+
+# NOTE: you do not need to handle the W argument for this part!
+# in:      X - N x d matrix of N data points
+#     labels - N vector of class labels
+# out:    mu - C x d matrix of class means (mu[i] - class i mean)
+#      sigma - C x d x d matrix of class covariances (sigma[i] - class i sigma)
+def mlParams(X, labels, W=None):
+    assert(X.shape[0]==labels.shape[0])
+    Npts,Ndims = np.shape(X)
+    classes = np.unique(labels)
+    Nclasses = np.size(classes)
+
+    if W is None:
+        W = np.ones((Npts,1))/float(Npts)
+
+    mu = np.zeros((Nclasses,Ndims))
+    sigma = np.zeros((Nclasses,Ndims,Ndims))
+
+    W_sum = np.zeros((Nclasses,1))
+    tmp = np.zeros((Nclasses,Ndims))
+
+    for i in range(Npts):
+        tmp[labels[i]] +=  X[i]*W[i]
+        W_sum[labels[i]] += W[i]
+
+    mu = tmp/W_sum
+
+    tmp = np.zeros((Nclasses,Ndims))
+
+    for i in range(Npts):
+        tmp[labels[i]] += W[i]*(np.power((X[i] - mu[labels[i]]),2))
+
+    for k in range(Nclasses):
+        sigma[k] = tmp[k]/W_sum[k]
+        for i in range(Ndims):
+            for j in range (Ndims):
+                if (i !=j):
+                    sigma[k,i,j] = 0
 
     return mu, sigma
 
@@ -120,24 +151,9 @@ def classifyBayes(X, prior, mu, sigma):
     # for i in range(Npts):
     #     tmp[labels[i]] += (np.power((X[i] - mu[labels[i]]),2))
 
-    tmp = np.zeros((Nclasses,Ndims))
-    derp = False
-    # for k in range(Nclasses):
-    #     for i in range(Ndims):
-    #         logProb[k,i] = np.log(sigma[k,i,i])/2
-    #         if derp == False:
-    #             print logProb[k]
-    #             derp = True
-    #         logProb[k] -= np.power((X[:,i] - mu[k,i]),2)/(2*sigma[k,i,i])
-    #         # print shape(np.log(sigma[k,i,i])/2)
-    #     logProb[k] += np.log(prior[k])
-
-
-
     for i in range(Npts):
         for k in range(Nclasses):
-            logProb[k,i] = np.log(np.linalg.det(sigma[k]))/2
-
+            logProb[k,i] = -np.log(np.linalg.det(sigma[k]))/2
             logProb[k,i] -= np.dot(X[i]-mu[k] ,np.dot(np.linalg.inv(sigma[k]), np.transpose(X[i]-mu[k])) )/2
             logProb[k,i] += np.log(prior[k])
 
