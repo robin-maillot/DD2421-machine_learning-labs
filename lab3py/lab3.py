@@ -64,9 +64,7 @@ def computePrior(labels, W=None):
     for i in range(Npts):
         N[labels[i]] += W[i] 
     prior = N/ ( np.sum(W))
-    print np.sum(W)
-    print prior
-    
+
     return prior
 
 # NOTE: you do not need to handle the W argument for this part!
@@ -208,12 +206,12 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-X, labels = genBlobs(centers=5)
-mu, sigma = mlParams(X,labels)
-plotGaussian(X,labels,mu,sigma)
+# X, labels = genBlobs(centers=5)
+# mu, sigma = mlParams(X,labels)
+# plotGaussian(X,labels,mu,sigma)
 
-preeee = computePrior(labels)
-classifyBayes(X, preeee, mu, sigma)
+# preeee = computePrior(labels)
+# classifyBayes(X, preeee, mu, sigma)
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 
@@ -255,14 +253,38 @@ def trainBoost(base_classifier, X, labels, T=10):
         classifiers.append(base_classifier.trainClassifier(X, labels, wCur))
 
         # do classification for each point
-        vote = classifiers[-1].classify(X)
+        # vote = classifiers[-1].classify(X)
+        vote = classifiers[i_iter].classify(X)
 
         # TODO: Fill in the rest, construct the alphas etc.
         # ==========================
+        # classifiers[i_iter].prior = computePrior(labels, wCur)
+        # classifiers[i_iter].mu, classifiers[i_iter].sigma = mlParams(X, labels, wCur)
+        # delta = classifyBayes(X, classifiers[i_iter].prior, classifiers[i_iter].mu, classifiers[i_iter].sigma)
+        error = 0
+        for i in range(Npts):
+            if (vote[i] != labels[i]):
+                error += wCur[i]
+        if error == 0:
+            print "FAAAAK"
+        alpha = 0.5*(np.log(1-error) - np.log(error))
         
-        # alphas.append(alpha) # you will need to append the new alpha
+        # print "Fek"
+        # print vote
+        # print "herp"
+        # print labels
+        
+
+        for i in range(Npts):
+            if (vote[i] != labels[i]):
+                wCur[i] = wCur[i]*np.exp(alpha)
+            else:
+                wCur[i] = wCur[i]*np.exp(-alpha)
+        wCur = wCur/np.sum(wCur)
+
+        alphas.append(alpha) # you will need to append the new alpha
         # ==========================
-        
+    
     return classifiers, alphas
 
 # in:       X - N x d matrix of N data points
@@ -277,17 +299,19 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
     # if we only have one classifier, we may just classify directly
     if Ncomps == 1:
         return classifiers[0].classify(X)
-    else:
-        votes = np.zeros((Npts,Nclasses))
+    
+    votes = np.zeros((Npts,Nclasses))
 
-        # TODO: implement classificiation when we have trained several classifiers!
-        # here we can do it by filling in the votes vector with weighted votes
-        # ==========================
-        
-        # ==========================
+    # TODO: implement classificiation when we have trained several classifiers!
+    # here we can do it by filling in the votes vector with weighted votes
+    # ==========================
+    
+    
 
-        # one way to compute yPred after accumulating the votes
-        return np.argmax(votes,axis=1)
+    # ==========================
+
+    # one way to compute yPred after accumulating the votes
+    return np.argmax(votes,axis=1)
 
 
 # The implemented functions can now be summarized another classifer, the `BoostClassifier` class. This class enables boosting different types of classifiers by initializing it with the `base_classifier` argument. No need to add anything here.
@@ -316,7 +340,7 @@ class BoostClassifier(object):
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 
 
-#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
 
 
 
@@ -324,7 +348,7 @@ class BoostClassifier(object):
 
 
 
-#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
+plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
 
 # Now repeat the steps with a decision tree classifier.
