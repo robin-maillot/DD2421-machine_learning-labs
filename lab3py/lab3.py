@@ -31,7 +31,7 @@ import random
 # NOTE: you do not need to handle the W argument for this part!
 # in: labels - N vector of class labels
 # out: prior - C x 1 vector of class priors
-def computePrior(labels, W=None):
+def _computePrior(labels, W=None):
     Npts = labels.shape[0]
     if W is None:
         W = np.ones((Npts,1))/Npts
@@ -42,15 +42,31 @@ def computePrior(labels, W=None):
 
     prior = np.zeros((Nclasses,1))
 
-    # TODO: compute the values of prior for each class!
-    # ==========================
     N = np.zeros((Nclasses,1))
     for i in range(Npts):
         N[labels[i]] += 1 
     prior = N/ np.size(labels)
-    # print prior
-    # ==========================
+    return prior
 
+def computePrior(labels, W=None):
+    Npts = labels.shape[0]
+    if W is None:
+        W = np.ones((Npts,1))/Npts
+    else:
+        assert(W.shape[0] == Npts)
+    classes = np.unique(labels)
+    Nclasses = np.size(classes)
+
+    prior = np.zeros((Nclasses,1))
+    W_sum = np.zeros((Nclasses,1))
+    
+    N = np.zeros((Nclasses,1))
+    for i in range(Npts):
+        N[labels[i]] += W[i] 
+    prior = N/ ( np.sum(W))
+    print np.sum(W)
+    print prior
+    
     return prior
 
 # NOTE: you do not need to handle the W argument for this part!
@@ -192,17 +208,17 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-# X, labels = genBlobs(centers=5)
-# mu, sigma = mlParams(X,labels)
-# plotGaussian(X,labels,mu,sigma)
+X, labels = genBlobs(centers=5)
+mu, sigma = mlParams(X,labels)
+plotGaussian(X,labels,mu,sigma)
 
-# preeee = computePrior(labels)
-# classifyBayes(X, preeee, mu, sigma)
+preeee = computePrior(labels)
+classifyBayes(X, preeee, mu, sigma)
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 
 
-testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+# testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 
 
 
@@ -210,7 +226,7 @@ testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 
 
 
-plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+# plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
 
 
 # ## Boosting functions to implement
