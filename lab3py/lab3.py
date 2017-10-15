@@ -44,7 +44,11 @@ def computePrior(labels, W=None):
 
     # TODO: compute the values of prior for each class!
     # ==========================
-    
+    N = np.zeros((Nclasses,1))
+    for i in range(Npts):
+        N[labels[i]] += 1 
+    prior = N/ np.size(labels)
+    # print prior
     # ==========================
 
     return prior
@@ -75,24 +79,30 @@ def mlParams(X, labels, W=None):
         N[labels[i]] += 1 
         tmp[labels[i]] +=  X[i]
 
-    for k in range(Nclasses):
-        mu[k] = tmp[k]/N[k]
+    # for k in range(Nclasses):
+    #     mu[k] = tmp[k]/N[k]
+    mu = tmp/N
 
     tmp = np.zeros((Nclasses,Ndims))
 
-    for i in range(Ndims):
-        tmp[labels[i]] += (np.power((X[i] - mu[i]),2))
+    for i in range(Npts):
+        tmp[labels[i]] += (np.power((X[i] - mu[labels[i]]),2))
 
     for k in range(Nclasses):
+        sigma[k] = tmp[k]/N[k]
         for i in range(Ndims):
-            sigma[k] = tmp[k]/N[k]
+            for j in range (Ndims):
+                if (i !=j):
+                    sigma[k,i,j] = 0
     # ==========================
     
-    print np.shape(mu)
-    print np.shape(sigma)
+    # print np.shape(mu)
+    # print mu
+    # print np.shape(sigma)
+    # print sigma
 
     return mu, sigma
-    
+
 
 # in:      X - N x d matrix of M data points
 #      prior - C x 1 matrix of class priors
@@ -107,7 +117,33 @@ def classifyBayes(X, prior, mu, sigma):
 
     # TODO: fill in the code to compute the log posterior logProb!
     # ==========================
-    
+    # for i in range(Npts):
+    #     tmp[labels[i]] += (np.power((X[i] - mu[labels[i]]),2))
+
+    tmp = np.zeros((Nclasses,Ndims))
+    derp = False
+    # for k in range(Nclasses):
+    #     for i in range(Ndims):
+    #         logProb[k,i] = np.log(sigma[k,i,i])/2
+    #         if derp == False:
+    #             print logProb[k]
+    #             derp = True
+    #         logProb[k] -= np.power((X[:,i] - mu[k,i]),2)/(2*sigma[k,i,i])
+    #         # print shape(np.log(sigma[k,i,i])/2)
+    #     logProb[k] += np.log(prior[k])
+
+
+
+    for i in range(Npts):
+        for k in range(Nclasses):
+            logProb[k,i] = np.log(np.linalg.det(sigma[k]))/2
+
+            logProb[k,i] -= np.dot(X[i]-mu[k] ,np.dot(np.linalg.inv(sigma[k]), np.transpose(X[i]-mu[k])) )/2
+            logProb[k,i] += np.log(prior[k])
+
+
+    # print np.shape(logProb)
+    # print logProb
     # ==========================
     
     # one possible way of finding max a-posteriori once
@@ -140,15 +176,17 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-X, labels = genBlobs(centers=5)
-mu, sigma = mlParams(X,labels)
-plotGaussian(X,labels,mu,sigma)
+# X, labels = genBlobs(centers=5)
+# mu, sigma = mlParams(X,labels)
+# plotGaussian(X,labels,mu,sigma)
 
+# preeee = computePrior(labels)
+# classifyBayes(X, preeee, mu, sigma)
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 
 
-#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 
 
 
@@ -156,7 +194,7 @@ plotGaussian(X,labels,mu,sigma)
 
 
 
-#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
 
 
 # ## Boosting functions to implement
