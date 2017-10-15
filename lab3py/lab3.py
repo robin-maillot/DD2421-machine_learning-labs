@@ -68,10 +68,31 @@ def mlParams(X, labels, W=None):
 
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
-    
+    N = np.zeros((Nclasses,1))
+    tmp = np.zeros((Nclasses,Ndims))
+
+    for i in range(Npts):
+        N[labels[i]] += 1 
+        tmp[labels[i]] +=  X[i]
+
+    for k in range(Nclasses):
+        mu[k] = tmp[k]/N[k]
+
+    tmp = np.zeros((Nclasses,Ndims))
+
+    for i in range(Ndims):
+        tmp[labels[i]] += (np.power((X[i] - mu[i]),2))
+
+    for k in range(Nclasses):
+        for i in range(Ndims):
+            sigma[k] = tmp[k]/N[k]
     # ==========================
+    
+    print np.shape(mu)
+    print np.shape(sigma)
 
     return mu, sigma
+    
 
 # in:      X - N x d matrix of M data points
 #      prior - C x 1 matrix of class priors
