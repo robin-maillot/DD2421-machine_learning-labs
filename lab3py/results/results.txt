@@ -1,0 +1,11 @@
+Iris:
+classifier:		
+classifier-boosted:	
+decisionTree:		92.4	3.71
+decisionTree-boosted:   94.6	3.65
+
+Vowels:
+classifier:		
+classifier-boosted:	
+decisionTree:		64.1	4.00
+decisionTree-boosted:   86.6	3.05
