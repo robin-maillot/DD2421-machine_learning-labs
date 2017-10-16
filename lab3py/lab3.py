@@ -306,8 +306,19 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
     # here we can do it by filling in the votes vector with weighted votes
     # ==========================
     
+    # for i in range(Npts):
+    #     votes[i] = alphas[i]
     
-
+    for T in range(Ncomps):
+        h = classifiers[T].classify(X)
+        for i in range (Npts):
+            votes[i,h[i]] += alphas[T]
+  
+    
+    # ==========================
+    
+    # one possible way of finding max a-posteriori once
+    # you have computed the log posterior
     # ==========================
 
     # one way to compute yPred after accumulating the votes
