@@ -248,32 +248,24 @@ def trainBoost(base_classifier, X, labels, T=10):
     # The weights for the first iteration
     wCur = np.ones((Npts,1))/float(Npts)
 
+    derp = True
     for i_iter in range(0, T):
         # a new classifier can be trained like this, given the current weights
         classifiers.append(base_classifier.trainClassifier(X, labels, wCur))
 
         # do classification for each point
-        # vote = classifiers[-1].classify(X)
-        vote = classifiers[i_iter].classify(X)
+        vote = classifiers[-1].classify(X)
+        # vote = classifiers[i_iter].classify(X)
 
         # TODO: Fill in the rest, construct the alphas etc.
         # ==========================
-        # classifiers[i_iter].prior = computePrior(labels, wCur)
-        # classifiers[i_iter].mu, classifiers[i_iter].sigma = mlParams(X, labels, wCur)
-        # delta = classifyBayes(X, classifiers[i_iter].prior, classifiers[i_iter].mu, classifiers[i_iter].sigma)
         error = 0
         for i in range(Npts):
             if (vote[i] != labels[i]):
                 error += wCur[i]
         if error == 0:
-            print "FAAAAK"
+            error = 0.000001
         alpha = 0.5*(np.log(1-error) - np.log(error))
-        
-        # print "Fek"
-        # print vote
-        # print "herp"
-        # print labels
-        
 
         for i in range(Npts):
             if (vote[i] != labels[i]):
@@ -314,7 +306,6 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
         for i in range (Npts):
             votes[i,h[i]] += alphas[T]
   
-    
     # ==========================
     
     # one possible way of finding max a-posteriori once
