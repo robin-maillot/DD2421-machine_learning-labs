@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
 from numpy import genfromtxt
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.patches import Ellipse
@@ -168,6 +170,7 @@ def plotGaussian(X,y,mu,sigma):
         c += 1.
 
     plt.show()
+    plt.savefig("HyperDerp.png")
 
 
 # The function below, `testClassifier`, will be used to try out the different datasets.
@@ -258,6 +261,7 @@ def plotBoundary(classifier, dataset='iris', split=0.7):
     plt.legend(bbox_to_anchor=(1., 1), loc=2, borderaxespad=0.)
     fig.subplots_adjust(right=0.7)
     plt.show()
+    plt.savefig("Assignment3")
 
 
 def visualizeOlivettiVectors(xTr, Xte):
