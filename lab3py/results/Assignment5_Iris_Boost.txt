@@ -1,0 +1,1 @@
+Final mean classification accuracy  94.7 with standard deviation 2.82

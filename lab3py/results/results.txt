@@ -1,11 +1,11 @@
 Iris:
-classifier:		
-classifier-boosted:	
+classifier:		89	4.16
+classifier-boosted:	94.7	2.82
 decisionTree:		92.4	3.71
 decisionTree-boosted:   94.6	3.65
 
 Vowels:
-classifier:		
-classifier-boosted:	
+classifier:		64.7 	4.03
+classifier-boosted:	80.2	3.52
 decisionTree:		64.1	4.00
 decisionTree-boosted:   86.6	3.05
