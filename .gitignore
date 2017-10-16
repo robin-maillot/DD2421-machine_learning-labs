@@ -19,6 +19,7 @@ $RECYCLE.BIN/
 
 # Python exec
 *.cpy
+*.pyc
 
 # Mac OS
 *.DS_Store
